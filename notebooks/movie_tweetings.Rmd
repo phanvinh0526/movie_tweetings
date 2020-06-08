@@ -1,0 +1,103 @@
+---
+title: "movie_tweetings"
+author: "Vinh Phan"
+date: "`r format(Sys.time(), '%d %B %Y'`"
+output: 
+  html_document:
+    toc: true
+    number_section: true
+params:
+  tbl_schema_url: '../sample_dataset/tbl_schema.txt'
+  movies_url: '../sample_dataset/movies.dat'
+  ratings_url: '../sample_dataset/ratings.dat'
+  users_url: '../sample_dataset/users.dat'
+    
+---
+
+```{r setup, include=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, out.width = '80%', fig.align = 'center')
+```
+
+## Wrangling data
+
+```{r read_files}
+library(readr) 
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(stringr)
+library(ggplot2)
+library(knitr)
+
+# load data
+data.tbl_schema <- read_csv(params$tbl_schema_url)
+data.raw.users <- read_table(params$users_url, col_names = FALSE)
+data.raw.ratings <- read_table(params$ratings_url, col_names = FALSE)
+data.raw.movies <- read_table(params$movies_url, col_names = FALSE) # R doesnt allow read "::" due to limit 1 byte of separator
+
+# check data structure
+dim(data.raw.users)
+dim(data.raw.movies)
+dim(data.raw.ratings)
+
+```
+
+### Reshape datasets
+1. convert users, movies, ratings into dataframes
+2. separate by "::" into different features
+3. regarding movie.genre, I seprate each cell in genre to make several rows
+```{r reshape_data}
+# convert into dataframe
+users_col <- data.tbl_schema$attributes[which(data.tbl_schema$dataset == 'users')]
+users_col <- unlist(str_split(users_col, pattern = "::"))
+movies_col <- data.tbl_schema$attributes[which(data.tbl_schema$dataset == 'movies')]
+movies_col <- unlist(str_split(movies_col, pattern = "::"))
+ratings_col <- data.tbl_schema$attributes[which(data.tbl_schema$dataset == 'ratings')]
+ratings_col <- unlist(str_split(ratings_col, pattern = "::"))
+
+# separate by "::"
+data.users <- separate(data.raw.users, col = X1, into = users_col, sep = "::",remove = TRUE)
+data.movies <- separate(data.raw.movies, col = X1, into = movies_col, sep = "#", remove = TRUE)
+data.ratings <- separate(data.raw.ratings, col = X1, into = ratings_col, sep = "::", remove = TRUE)
+
+# seprate each cell in genre to rows
+data.movies <- separate_rows(data.movies, genre)
+
+# have a look the result
+head(data.users)
+head(data.movies)
+head(data.ratings)
+```
+
+### Clean datasets
+1. Convert unix timestamp in ratings dataset to common datetime type
+2. Convert features into proper format, such as character to numeric for rating
+```{r }
+data.ratings <- transform(data.ratings, rating = as.numeric(rating),
+                            rating_date = as.numeric(rating_timestamp))
+data.ratings$rating_date <- as.POSIXct(data.ratings$rating_date, origin = lubridate::origin)
+data.ratings <- data.ratings %>% select(user_id, movie_id, rating, rating_date)
+
+var.genre <- sort(unique(data.movies$genre))
+
+```
+
+### Check missing data
+When I load the data files, I cannot detect any missing data in those 3 datasets
+
+
+### Check outliers
+1. I check empty genre in the movie dataset. There are 66 movies missing genre. It's a minor number against 10.506 movies. So I decided to remove them. However, If we have more information about the data, and the system architect, we maybe able to trace them.
+```{r outliers, include=TRUE,}
+
+# count empty genre
+count(data.movies[data.movies$genre == "",])
+
+
+
+
+```
+
+
+
+
