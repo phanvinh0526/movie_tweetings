@@ -1,0 +1,12 @@
+name: movie_popularity_analysis
+title: movie_popularity_analysis
+username:
+account: phanvinh0526
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2432508
+bundleId: 3248580
+url: https://phanvinh0526.shinyapps.io/movie_popularity_analysis/
+when: 1591729912.5937
+asMultiple: FALSE
+asStatic: FALSE

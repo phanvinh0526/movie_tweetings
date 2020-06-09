@@ -1,4 +1,0 @@
-dataset,attributes
-users,userid::twitter_id
-movies,movie_id::movie_title::genre
-ratings,user_id::movie_id::rating::rating_timestamp
