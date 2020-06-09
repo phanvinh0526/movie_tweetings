@@ -6,7 +6,7 @@ Movie Tweetings is an analysis on Movie Tweeting data [1]. This analysis can giv
 
 Use the RStudio [rstudio](https://rstudio.com/products/rstudio/download/) to open R Markdown file *(./notebooks/movie_popularity_analysis.Rmd)*.
 
-Online version: [Demo](https://phanvinh0526.shinyapps.io/movie_tweetings/)
+Online version: [Demo](https://phanvinh0526.shinyapps.io/movie_popularity_analysis/)
 
 ## Libraries
 R libraries (shiny, readr, dplyr, lubridate, stringr)
